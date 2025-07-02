@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Response
 from fastapi.responses import JSONResponse, StreamingResponse
-from app.processor import process_pdf
+from app.process import process_pdf
 from typing import Literal
 import uuid
 
