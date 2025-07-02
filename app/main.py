@@ -1,10 +1,13 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Response
 from fastapi.responses import JSONResponse, StreamingResponse
 from app.processor import process_pdf
 from typing import Literal
 import uuid
 
 app = FastAPI()
+@app.get("/favicon.ico")
+async def favicon():
+    return Response(status_code=204) 
 
 @app.post("/convert")
 async def convert_pdf(
