@@ -1,13 +1,24 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Response
 from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware  # 🔹 Import CORS middleware
 from app.process import process_pdf
 from typing import Literal
 import uuid
 
 app = FastAPI()
+
+# 🔹 Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://pdf-excel-converter.vercel.app", "https://localhost:5713/"],  # 🔸 Your frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/favicon.ico")
 async def favicon():
-    return Response(status_code=204) 
+    return Response(status_code=204)
 
 @app.post("/convert")
 async def convert_pdf(
