@@ -2,6 +2,7 @@ import pdfplumber
 import pandas as pd
 from io import BytesIO
 from copy import deepcopy
+import re
 
 FINAL_HEADER = [
     "PABN No.", "Series No.", "Member PIN", "Patient Name", "Health Care Professional",
@@ -20,6 +21,11 @@ def is_header_row(row):
     if all(cell and any(k in cell for k in subheader_keywords) for cell in row if cell):
         return True
     return False
+
+def clean_cell(cell):
+    if isinstance(cell, str):
+        return re.sub(r'\s+', ' ', cell.strip())  # Replace multiple spaces/tabs/newlines with a single space
+    return cell
 
 def process_pdf(file_bytes: bytes) -> tuple:
     data_rows = []
@@ -54,9 +60,14 @@ def process_pdf(file_bytes: bytes) -> tuple:
     clean_data = [r for r in data_rows if len(r) == len(FINAL_HEADER)]
     if not clean_data:
         raise ValueError("No valid rows extracted.")
+
     df = pd.DataFrame(clean_data, columns=FINAL_HEADER)
     df = df.ffill(axis=0)
 
+    # 🔹 Clean all cells for spacing
+    df = df.applymap(clean_cell)
+
+    # Excel output
     excel_output = BytesIO()
     with pd.ExcelWriter(excel_output, engine="openpyxl") as writer:
         df.to_excel(writer, index=False)
